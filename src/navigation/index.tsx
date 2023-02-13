@@ -37,7 +37,7 @@ export const Navigation = () => {
           name="Comments"
           component={CommentsScreen}
           options={{
-            headerShown: true,
+            headerShown: false,
             headerTitleAlign: "center",
             headerTintColor: palette.text,
             headerBackTitleVisible: false,
