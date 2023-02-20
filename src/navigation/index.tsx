@@ -37,11 +37,16 @@ export const Navigation = () => {
           name="Comments"
           component={CommentsScreen}
           options={{
-            headerShown: false,
+            title: "",
+            headerShown: true,
+            headerShadowVisible: false,
             headerTitleAlign: "center",
-            headerTintColor: palette.text,
             headerBackTitleVisible: false,
-            headerStyle: { backgroundColor: palette.background },
+            headerTintColor: palette.primary,
+            headerTitleStyle: { color: palette.text },
+            headerStyle: {
+              backgroundColor: palette.background,
+            },
           }}
         />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />

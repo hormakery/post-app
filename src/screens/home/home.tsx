@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { Fragment } from "react";
 import {
   Text,
   View,
   Image,
-  ScrollView,
-  TouchableOpacity,
-  TouchableOpacityProps,
+  FlatList,
+  FlatListProps,
+  ActivityIndicator,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-import fonts from "../../constants/fonts";
-import { Data } from "../../component/data";
+import { Post } from "../../component/post";
+import { usePosts } from "../../hooks/usePosts";
+import { PostInterface } from "../../types/types";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { RootTabScreenProps } from "../../types/navigation";
 
@@ -18,14 +18,37 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
   navigation,
 }) => {
   const { styles, palette } = useStyles();
-  const handlePress = () => navigation.replace("Comments");
+  const { isLoading, error, posts } = usePosts();
 
-  const [show, setShow] = useState("");
+  const handlePress = (post: PostInterface) => {
+    navigation.navigate("Comments", { post });
+  };
 
-  return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View>
+  const ListEmptyComponent: FlatListProps<PostInterface>["ListEmptyComponent"] =
+    () => {
+      if (isLoading) {
+        return (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color={palette.text} />
+          </View>
+        );
+      }
+
+      if (error) {
+        return (
+          <View style={styles.loaderContainer}>
+            <Text>{error.message}</Text>
+          </View>
+        );
+      }
+
+      return null;
+    };
+
+  const ListHeaderComponent: FlatListProps<PostInterface>["ListHeaderComponent"] =
+    () => {
+      return (
+        <Fragment>
           <View style={styles.profileWrapper}>
             <Image
               style={styles.profileImage}
@@ -37,67 +60,42 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
             <Text style={styles.email}>@amakirij</Text>
           </View>
           <View style={styles.profileCounter}>
-            <View style={styles.counter}>
+            <View>
               <Text style={styles.post}>0032</Text>
               <Text style={styles.postTag}>Posts</Text>
             </View>
-            <View style={styles.counter}>
+            <View>
               <Text style={styles.post}>026354</Text>
               <Text style={styles.postTag}>Followers</Text>
             </View>
-            <View style={styles.counter}>
+            <View>
               <Text style={styles.post}>0534</Text>
               <Text style={styles.postTag}>Subscriptions</Text>
             </View>
           </View>
-
           <View style={styles.allPost}>
             <Text style={styles.posts}>Post</Text>
             <Text style={styles.sortings}>Sorting</Text>
           </View>
-          {/* <Post onPress={handlePress} /> */}
-          <TouchableOpacity
-            style={styles.wrapperContainer}
-            onPress={handlePress}
-          >
-            {Data.map((items, index) => (
-              <View style={styles.postContainer} key={index}>
-                <View style={styles.wrapper}>
-                  <View style={{ flexDirection: "row" }}>
-                    <Image
-                      style={styles.image}
-                      source={{
-                        uri: items.image,
-                      }}
-                    />
-                    <View style={{ flexDirection: "column", marginLeft: 8 }}>
-                      <Text style={styles.name}>{items.name}</Text>
-                      <Text style={styles.time}>{items.time}</Text>
-                    </View>
-                  </View>
-                  <View style={{ flexDirection: "row" }}>
-                    <Text style={styles.icons}>{items.icons}</Text>
-                    <Text
-                      style={{ color: palette.outline, fontSize: fonts.size.s }}
-                    >
-                      {" "}
-                      {items.numberOfMessage}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.title}>{items.title}</Text>
-                <View style={styles.share}>
-                  <MaterialCommunityIcons
-                    name="share-outline"
-                    size={25}
-                    color={palette.grey}
-                  />
-                </View>
-              </View>
-            ))}
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </Fragment>
+      );
+    };
+
+  const renderItem: FlatListProps<PostInterface>["renderItem"] = ({ item }) => (
+    <Post onPress={() => handlePress(item)} {...item} />
+  );
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={posts}
+        renderItem={renderItem}
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={ListEmptyComponent}
+        ListHeaderComponent={ListHeaderComponent}
+        contentContainerStyle={styles.contentContainer}
+      />
     </View>
   );
 };
@@ -105,8 +103,6 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
 const useStyles = makeUseStyles(({ fonts, palette, edgeInsets, layout }) => ({
   container: {
     flex: 1,
-    // alignItems: "center",
-    // justifyContent: "center",
     paddingTop: edgeInsets.top,
     paddingBottom: edgeInsets.bottom,
     backgroundColor: palette.background,
@@ -116,7 +112,6 @@ const useStyles = makeUseStyles(({ fonts, palette, edgeInsets, layout }) => ({
     paddingBottom: edgeInsets.bottom,
     paddingHorizontal: layout.gutter,
   },
-  profile: {},
   profileWrapper: {
     alignItems: "center",
   },
@@ -137,14 +132,12 @@ const useStyles = makeUseStyles(({ fonts, palette, edgeInsets, layout }) => ({
     color: palette.outline,
     fontWeight: fonts.weight.thin,
   },
-
   profileCounter: {
     flexDirection: "row",
     paddingVertical: layout.gutter,
     justifyContent: "space-between",
     paddingHorizontal: layout.gutter,
   },
-  counter: {},
   post: {
     letterSpacing: 2,
     marginBottom: 5,
@@ -155,7 +148,7 @@ const useStyles = makeUseStyles(({ fonts, palette, edgeInsets, layout }) => ({
   postTag: {
     alignSelf: "center",
     fontSize: fonts.size.s,
-    color: palette.outline,
+    color: palette.grey,
   },
   allPost: {
     marginBottom: 5,
@@ -172,51 +165,10 @@ const useStyles = makeUseStyles(({ fonts, palette, edgeInsets, layout }) => ({
     alignItems: "center",
     color: palette.primary,
   },
-  wrapperContainer: {
-    opacity: 1,
-  },
-  postContainer: {
-    marginBottom: 30,
-    borderRadius: layout.gutter,
-    paddingVertical: layout.gutter * 2,
-    paddingHorizontal: layout.gutter,
-    backgroundColor: palette.postBackground,
-  },
-  wrapper: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  image: {
-    width: layout.gutter * 3,
-    height: layout.gutter * 3,
-    borderRadius: layout.gutter * 2,
-  },
-  name: {
-    color: palette.text,
-    fontSize: fonts.size.md,
-    fontWeight: fonts.weight.semi,
-  },
-  time: {
-    marginTop: 5,
-    color: palette.grey,
-    fontSize: fonts.size.s,
-  },
-  icons: {
-    fontSize: fonts.size.s,
-  },
-  title: {
-    lineHeight: 24,
-    color: palette.text,
-    fontSize: fonts.size.xxlg / 2,
-    paddingVertical: layout.gutter,
-  },
-  share: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "flex-end",
-  },
-  hr: {
-    borderWidth: 1,
-    borderBottomColor: palette.grey,
+  loaderContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    height: layout.screen.height - layout.screen.width,
   },
 }));

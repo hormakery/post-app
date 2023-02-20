@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, View } from "react-native";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 import { CircleOval } from "../../component/circle_oval";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
@@ -13,6 +14,14 @@ export const OnboardingScreen: React.FC<RootTabScreenProps<"Onboarding">> = ({
 }) => {
   const { styles } = useStyles();
   const handlePress = () => navigation.replace("Home");
+
+  useEffect(() => {
+    ScreenOrientation.addOrientationChangeListener((orientation) => {
+      console.log("====================================");
+      console.log({ orientation });
+      console.log("====================================");
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
