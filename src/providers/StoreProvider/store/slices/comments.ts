@@ -3,9 +3,11 @@ import {
   SerializedError,
   createAsyncThunk,
 } from "@reduxjs/toolkit";
+import * as timeago from "timeago.js";
 import { getUniqueComments } from "../../../../helpers/getUniqueComments";
 import { getPostComments, postComment } from "../../../../network";
 import {
+  CommentInterface,
   CommentRequestOption,
   CommentResponseInterface,
   PostCommentsRequestOption,
@@ -23,7 +25,7 @@ const initialState: CommentState = {
   isLoading: false,
 };
 
-// Fetch post commnets, create the thunk
+// Fetch post comments, create the thunk
 export const fetchCommentsByPostId = createAsyncThunk(
   "comments/fetchCommentsByPostId",
   async (payload: CommentRequestOption) => {
@@ -32,12 +34,22 @@ export const fetchCommentsByPostId = createAsyncThunk(
   }
 );
 
-// Post commnet, create the thunk
+type PostCommentByPostIdType = Omit<PostCommentsRequestOption, "userId"> &
+  Pick<CommentInterface, "user">;
+
+// Post comment, create the thunk
 export const postCommentByPostId = createAsyncThunk(
   "comments/postCommentByPostId",
-  async (payload: PostCommentsRequestOption) => {
-    const response = await postComment(payload);
-    return response;
+  async ({ user, ...payload }: PostCommentByPostIdType) => {
+    const response = await postComment({ ...payload, userId: user?.id!! });
+    return {
+      ...response,
+      user,
+      userId: user?.id!!,
+      image: user?.image!!,
+      time: timeago.format(new Date()),
+      name: `${user?.firstName} ${user?.lastName}`,
+    };
   }
 );
 

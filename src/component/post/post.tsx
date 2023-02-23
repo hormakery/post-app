@@ -1,24 +1,28 @@
 import React from "react";
 import hexToRgba from "hex-to-rgba";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Text, View, Image, TouchableOpacity } from "react-native";
+import { Text, View, Image, TouchableOpacity, Share } from "react-native";
 
-import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { PostInterface } from "../../types/types";
+import { makeUseStyles } from "../../helpers/makeUseStyles";
 
 type PostType = PostInterface & {
   isComment?: boolean;
-  hasBottomBorder?: boolean;
   onPress?: VoidFunction;
+  hasBottomBorder?: boolean;
 };
 
 export const Post: React.FC<PostType> = (props) => {
   const { styles, palette } = useStyles();
 
+  const sharePost = async () => {
+    Share.share({ message: props.body, title: props.name });
+  };
+
   return (
     <TouchableOpacity
-      disabled={props.isComment}
       onPress={props.onPress}
+      disabled={props.isComment}
       style={[
         styles.container,
         props.isComment && styles.commentContainer,
@@ -69,13 +73,13 @@ export const Post: React.FC<PostType> = (props) => {
           <Text style={styles.iconText}>{props.numberOfComments}</Text>
         </View>
       ) : (
-        <View style={styles.share}>
+        <TouchableOpacity style={styles.share} onPress={sharePost}>
           <MaterialCommunityIcons
-            name="share-outline"
             size={25}
+            name="share-outline"
             color={palette.grey}
           />
-        </View>
+        </TouchableOpacity>
       )}
     </TouchableOpacity>
   );

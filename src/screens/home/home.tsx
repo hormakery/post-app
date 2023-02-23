@@ -7,18 +7,21 @@ import {
   FlatListProps,
   ActivityIndicator,
 } from "react-native";
+import { shallowEqual, useSelector } from "react-redux";
 
 import { Post } from "../../component/post";
 import { usePosts } from "../../hooks/usePosts";
 import { PostInterface } from "../../types/types";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { RootTabScreenProps } from "../../types/navigation";
+import { RootState } from "../../providers/StoreProvider/store";
 
 export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
   navigation,
 }) => {
   const { styles, palette } = useStyles();
   const { isLoading, error, posts } = usePosts();
+  const { user } = useSelector((state: RootState) => state.user, shallowEqual);
 
   const handlePress = (post: PostInterface) => {
     navigation.navigate("Comments", { post });
@@ -50,26 +53,21 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
       return (
         <Fragment>
           <View style={styles.profileWrapper}>
-            <Image
-              style={styles.profileImage}
-              source={{
-                uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&dl=michael-dam-mEZ3PoFGs_k-unsplash.jpg&q=80&fm=jpg&crop=entropy&cs=tinysrgb",
-              }}
-            />
-            <Text style={styles.profileName}>Bonjour, Amakiri</Text>
-            <Text style={styles.email}>@amakirij</Text>
+            <Image style={styles.profileImage} source={{ uri: user?.image }} />
+            <Text style={styles.profileName}>Bonjour, {user?.firstName}</Text>
+            <Text style={styles.email}>{user?.email}</Text>
           </View>
           <View style={styles.profileCounter}>
             <View>
-              <Text style={styles.post}>0032</Text>
+              <Text style={styles.post}>{user?.noOfPosts}</Text>
               <Text style={styles.postTag}>Posts</Text>
             </View>
             <View>
-              <Text style={styles.post}>026354</Text>
+              <Text style={styles.post}>{user?.noOfFollowers}</Text>
               <Text style={styles.postTag}>Followers</Text>
             </View>
             <View>
-              <Text style={styles.post}>0534</Text>
+              <Text style={styles.post}>{user?.noOfSubscriptions}</Text>
               <Text style={styles.postTag}>Subscriptions</Text>
             </View>
           </View>

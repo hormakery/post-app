@@ -61,3 +61,9 @@ export interface PostUserInterface {
   maidenName: string;
   gender: "male" | "female";
 }
+
+export interface UserInterface extends PostUserInterface {
+  noOfPosts: number;
+  noOfFollowers: number;
+  noOfSubscriptions: number;
+}

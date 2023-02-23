@@ -27,8 +27,12 @@ export const getRandomPostUser = async (
   userId: PostInterface["userId"]
 ): Promise<PostUserInterface> => {
   const response = await fetch(`${POST_BASE_URL}/users/${userId}`);
-  const data = await response.json();
-  return data;
+  const data: PostUserInterface = await response.json();
+  const image = `${USER_BASE_IMAGE_URL}/${
+    GENDERS[data?.gender!!]
+  }/${userId}.jpg`;
+
+  return { ...data, image };
 };
 
 /**
@@ -56,10 +60,8 @@ export const getPosts = async (
 
     return {
       ...post,
+      image: `${postUser?.image}`,
       name: `${postUser?.firstName} ${postUser?.lastName}`,
-      image: `${USER_BASE_IMAGE_URL}/${GENDERS[postUser?.gender!!]}/${
-        post.userId
-      }.jpg`,
       time: timeago.format(
         randomDate({
           month: currentDate.getMonth(),
