@@ -15,12 +15,13 @@ import { PostInterface } from "../../types/types";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { RootTabScreenProps } from "../../types/navigation";
 import { RootState } from "../../providers/StoreProvider/store";
+import { NoInternetModal } from "../../component/no_internet_modal";
 
 export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
   navigation,
 }) => {
   const { styles, palette } = useStyles();
-  const { isLoading, error, posts } = usePosts();
+  const { isLoading, error, posts, onRetry } = usePosts();
   const { user } = useSelector((state: RootState) => state.user, shallowEqual);
 
   const handlePress = (post: PostInterface) => {
@@ -89,11 +90,14 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
         data={posts}
         renderItem={renderItem}
         style={styles.container}
+        onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={ListEmptyComponent}
         ListHeaderComponent={ListHeaderComponent}
         contentContainerStyle={styles.contentContainer}
+        keyExtractor={(item, index) => index + "" + item.userId.toString()}
       />
+      <NoInternetModal isRetrying={isLoading} onRetry={onRetry} />
     </View>
   );
 };

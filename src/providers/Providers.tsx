@@ -1,5 +1,4 @@
 import React, { PropsWithChildren } from "react";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 import { ToastProvider } from "./ToastProvider";
 import { SafeAreaProvider } from "./SafeAreaProvider";
@@ -11,9 +10,7 @@ export const Providers: React.FC<PropsWithChildren> = ({ children }) => {
     <StoreProvider>
       <SafeAreaProvider>
         <StatusBarProvider>
-          <ToastProvider>
-            <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
-          </ToastProvider>
+          <ToastProvider>{children}</ToastProvider>
         </StatusBarProvider>
       </SafeAreaProvider>
     </StoreProvider>

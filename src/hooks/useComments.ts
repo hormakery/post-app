@@ -17,7 +17,7 @@ export function useComments(postId?: number) {
 
   const comments = data[postId!];
 
-  useEffect(() => {
+  const onRetry = () => {
     if (postId) {
       dispatch(
         fetchCommentsByPostId({
@@ -27,6 +27,10 @@ export function useComments(postId?: number) {
         })
       );
     }
+  };
+
+  useEffect(() => {
+    onRetry();
   }, [postId]);
 
   const postComment = (text: string) => {
@@ -34,5 +38,5 @@ export function useComments(postId?: number) {
     dispatch(postCommentByPostId({ user, postId, body: text }));
   };
 
-  return { postComment, ...comments, error, isLoading };
+  return { onRetry, postComment, ...comments, error, isLoading };
 }

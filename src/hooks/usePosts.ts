@@ -8,9 +8,13 @@ export function usePosts() {
   const dispatch = useDispatch<AppDispatch>();
   const state = useSelector((state: RootState) => state.posts, shallowEqual);
 
-  useEffect(() => {
+  const onRetry = () => {
     dispatch(fetchAllPosts({ limit: state.limit, skip: state.skip }));
+  };
+
+  useEffect(() => {
+    onRetry();
   }, []);
 
-  return state;
+  return { ...state, onRetry };
 }

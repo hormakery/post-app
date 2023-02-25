@@ -19,6 +19,7 @@ import { useComments } from "../../hooks/useComments";
 import { makeUseStyles } from "../../helpers/makeUseStyles";
 import { CommentInput } from "../../component/comment_input";
 import { RootTabScreenProps } from "../../types/navigation";
+import { NoInternetModal } from "../../component/no_internet_modal";
 
 export const CommentsScreen: React.FC<RootTabScreenProps<"Comments">> = ({
   route,
@@ -29,7 +30,9 @@ export const CommentsScreen: React.FC<RootTabScreenProps<"Comments">> = ({
   const [inputHeight, setInputHeight] = useState(60);
   const { keyboardHeight, keyboardShown } = useKeyboard();
   const { styles, layout, edgeInsets, palette } = useStyles();
-  const { comments, error, isLoading, postComment } = useComments(post?.id);
+  const { comments, error, isLoading, onRetry, postComment } = useComments(
+    post?.id
+  );
 
   const animatedStyle = useAnimatedStyle(() => ({
     paddingTop: keyboardShown ? keyboardHeight : 0,
@@ -105,6 +108,7 @@ export const CommentsScreen: React.FC<RootTabScreenProps<"Comments">> = ({
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={ListEmptyComponent}
         ListHeaderComponent={ListHeaderComponent}
+        keyExtractor={(item, index) => index + "" + item.postId.toString()}
       />
       <CommentInput
         onSubmit={postComment}
@@ -116,6 +120,7 @@ export const CommentsScreen: React.FC<RootTabScreenProps<"Comments">> = ({
             : edgeInsets.bottom,
         }}
       />
+      <NoInternetModal isRetrying={isLoading} onRetry={onRetry} />
     </Animated.View>
   );
 };
