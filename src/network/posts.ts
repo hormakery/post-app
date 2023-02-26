@@ -45,7 +45,7 @@ export const getPosts = async (
   options?: PostRequestOption
 ): Promise<PostResponseInterface> => {
   const response = await fetch(
-    `${POST_BASE_URL}/posts?limit=${options?.limit || 30}&skip=${
+    `${POST_BASE_URL}/posts?limit=${options?.limit || 10}&skip=${
       options?.skip || 0
     }`
   );

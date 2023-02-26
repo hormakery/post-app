@@ -21,7 +21,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
   navigation,
 }) => {
   const { styles, palette } = useStyles();
-  const { isLoading, error, posts, onRetry } = usePosts();
+  const { isLoading, error, posts, hasMore, fetchMore, onRetry } = usePosts();
   const { user } = useSelector((state: RootState) => state.user, shallowEqual);
 
   const handlePress = (post: PostInterface) => {
@@ -44,6 +44,25 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
             <Text>{error.message}</Text>
           </View>
         );
+      }
+
+      return null;
+    };
+
+  const ListFooterComponent: FlatListProps<PostInterface>["ListFooterComponent"] =
+    () => {
+      if (hasMore && isLoading) {
+        return (
+          <View style={styles.footerText}>
+            <ActivityIndicator size="large" color={palette.text} />
+          </View>
+        );
+      }
+
+      if (!hasMore) {
+        <View style={styles.footerText}>
+          <Text>No more Post</Text>
+        </View>;
       }
 
       return null;
@@ -90,10 +109,12 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
         data={posts}
         renderItem={renderItem}
         style={styles.container}
-        onEndReachedThreshold={0.5}
+        onEndReached={() => fetchMore()}
+        onEndReachedThreshold={0.7}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={ListEmptyComponent}
         ListHeaderComponent={ListHeaderComponent}
+        ListFooterComponent={ListFooterComponent}
         contentContainerStyle={styles.contentContainer}
         keyExtractor={(item, index) => index + "" + item.userId.toString()}
       />
@@ -173,4 +194,5 @@ const useStyles = makeUseStyles(({ fonts, palette, edgeInsets, layout }) => ({
     justifyContent: "center",
     height: layout.screen.height - layout.screen.width,
   },
+  footerText: {},
 }));

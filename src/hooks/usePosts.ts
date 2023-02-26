@@ -12,9 +12,18 @@ export function usePosts() {
     dispatch(fetchAllPosts({ limit: state.limit, skip: state.skip }));
   };
 
+  const fetchMore = () => {
+    dispatch(fetchAllPosts({ limit: state.limit, skip: state.posts.length }));
+  };
+
   useEffect(() => {
     onRetry();
   }, []);
 
-  return { ...state, onRetry };
+  return {
+    ...state,
+    onRetry,
+    fetchMore,
+    hasMore: state.total > state.posts.length,
+  };
 }
