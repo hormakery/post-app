@@ -3,8 +3,8 @@ import {
   SerializedError,
   createAsyncThunk,
 } from "@reduxjs/toolkit";
+import unique from "lodash.uniqby";
 import * as timeago from "timeago.js";
-import { getUniqueComments } from "../../../../helpers/getUniqueComments";
 import { getPostComments, postComment } from "../../../../network";
 import {
   CommentInterface,
@@ -42,6 +42,10 @@ export const postCommentByPostId = createAsyncThunk(
   "comments/postCommentByPostId",
   async ({ user, ...payload }: PostCommentByPostIdType) => {
     const response = await postComment({ ...payload, userId: user?.id!! });
+    console.log("====================================");
+    console.log(response);
+    console.log("====================================");
+
     return {
       ...response,
       user,
@@ -77,7 +81,13 @@ export const commentSlice = createSlice({
           ...action.payload.comments,
         ];
 
-        const uniquesComments = getUniqueComments(duplicateComments, "id");
+        const uniquesComments = unique<CommentInterface>(
+          duplicateComments,
+          "id"
+        );
+
+        // Add comments to the state array
+        state.isLoading = false;
 
         state.data = {
           ...state?.data,
@@ -95,13 +105,18 @@ export const commentSlice = createSlice({
         // Add comments to the state array
         const { postId } = action.payload;
         const previousPostComments = state.data[postId] || {};
+        const previousPostCommentId =
+          (previousPostComments?.comments?.slice(-1)?.[0]?.id || 0) + 1;
 
         const duplicateComments = [
           ...(previousPostComments.comments || []),
-          action.payload,
+          { ...action.payload, id: previousPostCommentId },
         ];
 
-        const uniquesComments = getUniqueComments(duplicateComments, "id");
+        const uniquesComments = unique<CommentInterface>(
+          duplicateComments,
+          "id"
+        );
 
         state.data = {
           ...state.data,

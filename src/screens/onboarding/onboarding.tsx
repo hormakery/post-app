@@ -16,11 +16,7 @@ export const OnboardingScreen: React.FC<RootTabScreenProps<"Onboarding">> = ({
   const handlePress = () => navigation.replace("Home");
 
   useEffect(() => {
-    ScreenOrientation.addOrientationChangeListener((orientation) => {
-      console.log("====================================");
-      console.log({ orientation });
-      console.log("====================================");
-    });
+    ScreenOrientation.addOrientationChangeListener(() => {});
   }, []);
 
   return (
