@@ -42,10 +42,6 @@ export const postCommentByPostId = createAsyncThunk(
   "comments/postCommentByPostId",
   async ({ user, ...payload }: PostCommentByPostIdType) => {
     const response = await postComment({ ...payload, userId: user?.id!! });
-    console.log("====================================");
-    console.log(response);
-    console.log("====================================");
-
     return {
       ...response,
       user,
