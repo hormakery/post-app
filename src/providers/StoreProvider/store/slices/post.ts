@@ -3,8 +3,10 @@ import {
   SerializedError,
   createAsyncThunk,
 } from "@reduxjs/toolkit";
+import unique from "lodash.uniqby";
 import { getPosts } from "../../../../network";
 import {
+  PostInterface,
   PostRequestOption,
   PostResponseInterface,
 } from "../../../../types/types";
@@ -47,12 +49,20 @@ export const postSlice = createSlice({
         state.error = action.error;
       })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
-        // Add comments to the state array
+        // Add posts to the state array
         state.isLoading = false;
         state.skip = action.payload.skip;
         state.limit = action.payload.limit;
-        state.limit = action.payload.limit;
-        state.posts = state.posts.concat(action.payload.posts);
+        state.total = action.payload.total;
+
+        const duplicatePosts = [
+          ...(state.posts || []),
+          ...action.payload.posts,
+        ];
+
+        const uniquesPosts = unique<PostInterface>(duplicatePosts, "id");
+
+        state.posts = uniquesPosts;
       });
   },
 });

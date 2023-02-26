@@ -21,8 +21,8 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
   navigation,
 }) => {
   const { styles, palette } = useStyles();
-  const { isLoading, error, posts, hasMore, fetchMore, onRetry } = usePosts();
   const { user } = useSelector((state: RootState) => state.user, shallowEqual);
+  const { isLoading, error, posts, hasMore, fetchMore, onRetry, isFetchingMore } = usePosts();
 
   const handlePress = (post: PostInterface) => {
     navigation.navigate("Comments", { post });
@@ -41,7 +41,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
       if (error) {
         return (
           <View style={styles.loaderContainer}>
-            <Text>{error.message}</Text>
+            <Text style={styles.profileName}>{error.message}</Text>
           </View>
         );
       }
@@ -51,7 +51,7 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
 
   const ListFooterComponent: FlatListProps<PostInterface>["ListFooterComponent"] =
     () => {
-      if (hasMore && isLoading) {
+      if (isFetchingMore) {
         return (
           <View style={styles.footerText}>
             <ActivityIndicator size="large" color={palette.text} />
@@ -60,8 +60,8 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
       }
 
       if (!hasMore) {
-        <View style={styles.footerText}>
-          <Text>No more Post</Text>
+       return <View style={styles.footerText}>
+          <Text style={styles.postTag}>No more Post</Text>
         </View>;
       }
 
@@ -109,14 +109,13 @@ export const HomeScreen: React.FC<RootTabScreenProps<"Home">> = ({
         data={posts}
         renderItem={renderItem}
         style={styles.container}
-        onEndReached={() => fetchMore()}
-        onEndReachedThreshold={0.7}
+        onEndReached={fetchMore}
+        onEndReachedThreshold={0.01}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={ListEmptyComponent}
         ListHeaderComponent={ListHeaderComponent}
         ListFooterComponent={ListFooterComponent}
         contentContainerStyle={styles.contentContainer}
-        keyExtractor={(item, index) => index + "" + item.userId.toString()}
       />
       <NoInternetModal isRetrying={isLoading} onRetry={onRetry} />
     </View>
@@ -194,5 +193,7 @@ const useStyles = makeUseStyles(({ fonts, palette, edgeInsets, layout }) => ({
     justifyContent: "center",
     height: layout.screen.height - layout.screen.width,
   },
-  footerText: {},
+  footerText: {
+    paddingBottom: layout.gutter * 2,
+  },
 }));
